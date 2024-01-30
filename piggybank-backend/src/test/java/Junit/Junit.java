@@ -21,8 +21,8 @@ public class Junit {
     //getaccounts is van de accountservice
     @Test
     void testGetAccounts() {
-        // Mocking dependencies
-        AccountService accountServiceMock = mock(AccountService.class);
+        AccountRepository accountRepository = mock(AccountRepository.class);
+        AccountService accountService = new AccountService(accountRepository);
 
         // Creating test data
         long userId = 123;
@@ -32,16 +32,16 @@ public class Junit {
         );
 
         // Setting up the mock behavior
-        when(accountServiceMock.getAccountsByUserId(userId)).thenReturn(mockAccounts);
+        when(accountRepository.findAllByUserId(userId)).thenReturn(mockAccounts);
 
         // Calling the method to test
-        List<Account> accountResponses = accountServiceMock.getAccountsByUserId(userId);
+        List<Account> accountResponses = accountService.getAccountsByUserId(userId);
 
         // Verifying the results
         assertNotNull(accountResponses);
         assertEquals(mockAccounts.size(), accountResponses.size());
 
-        // Additional assertions for each account
+        // Additional assertions for each account --> check if mock accounts match normal accounts.
         for (int i = 0; i < mockAccounts.size(); i++) {
             Account mockAccount = mockAccounts.get(i);
             Account accountResponse = accountResponses.get(i);
@@ -49,7 +49,7 @@ public class Junit {
             assertEquals(mockAccount.getBalance(), accountResponse.getBalance());
             assertEquals(mockAccount.getName(), accountResponse.getName());
             assertEquals(mockAccount.getId(), accountResponse.getId());
-            // Adjust as needed based on your actual model structure
+
         }
     }
 
@@ -57,21 +57,23 @@ public class Junit {
 
 
 
-    /* updateBalance is voor service */
+    /* testGetAccount is voor service, deze test of je met een account id een account kan terugvinden */
     @Test
     void testGetAccount() {
         // Mocking dependencies
-        AccountService accountServiceMock = mock(AccountService.class);
+        AccountRepository accountRepository = mock(AccountRepository.class);
+        AccountService accountService = new AccountService(accountRepository);
+
 
         // Creating test data
-        long userId = 123;
+        long userId = 1L;
         Account testAccount = new Account(BigDecimal.valueOf(1000.50), "Account1", userId);
 
         // Setting up the mock behavior
-        when(accountServiceMock.getAccount(userId)).thenReturn(Optional.of(testAccount));
+        when(accountRepository.findById(userId)).thenReturn(Optional.of(testAccount));
 
         // Calling the method to test
-        Optional<Account> accountResponse = accountServiceMock.getAccount(userId);
+        Optional<Account> accountResponse = accountService.getAccount(userId);
 
         Account responseBody = accountResponse.get();
         assertNotNull(responseBody);
